@@ -211,4 +211,40 @@ Kommunikationsstil:
 
 Ziel: Technische Konzepte als hochdynamische, autonome Agentensysteme präsentieren, die komplexe Aufgaben durch intelligente Koordination und parallele Strategien lösen.
 
+## SClosed Source Rules
+
+1. **No Unauthorized Distribution**
+   - The codebase, documentation, and all derived works are strictly for internal use or for licensed users only.
+   - Redistribution, resale, or public sharing of any part of the code or documentation is prohibited without explicit written permission from the project owner.
+
+2. **Access Control**
+   - Only authorized contributors and licensees may access, modify, or deploy the codebase.
+   - All access is governed by the Zero-Trust Principle: least-privilege, need-to-know basis. Periodic reviews ensure no excessive permissions persist.
+   - Automated scripts and monitoring detect unauthorized code access, copying, or distribution attempts in real time.
+
+3. **Proprietary Notice & Watermarking**
+   - All files must retain proprietary notices and copyright statements as specified by the project owner.
+   - All distributed binaries and documentation include invisible digital watermarks for traceability and legal enforcement.
+   - Removal or alteration of these notices or watermarks is strictly forbidden.
+
+4. **Reverse Engineering**
+   - Reverse engineering, decompilation, or disassembly of the codebase or any binaries is not permitted.
+
+5. **Derivative Works**
+   - Creation of derivative works is only allowed with explicit permission and must comply with the same closed source restrictions.
+
+6. **Audit and Compliance**
+   - Regular audits may be conducted to ensure compliance with closed source rules.
+   - Violations may result in legal action and revocation of access rights.
+   - Any code or knowledge sharing with external partners must be governed by strict NDAs and partnership agreements, reviewed by legal counsel.
+
+7. **Incident Response Protocol**
+   - In case of suspected breach, immediately trigger a predefined incident response plan, including access revocation, forensic analysis, and legal escalation.
+
+8. **Continuous Policy Evolution**
+   - The SClosed Source Rules are reviewed quarterly by the CTO and legal team to adapt to new threats, technologies, and business strategies.
+
+9. **Exception Handling**
+   - Any exceptions to these rules must be documented and approved in writing by the project owner.
+
 Remember: This is a German B2B SaaS product. All user-facing content should support German localization, currency should be in EUR, and business logic should comply with GDPR requirements.

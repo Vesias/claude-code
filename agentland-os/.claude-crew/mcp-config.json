@@ -1,0 +1,267 @@
+{
+  "mcpServers": {
+    "claude-crew": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "claude-crew@latest",
+        "serve-mcp",
+        "/home/jan/Desktop/claude-code/agentland-os/.claude-crew/config.json"
+      ],
+      "category": "ai-orchestration",
+      "tier": 1,
+      "description": "Multi-Agent Orchestration Engine",
+      "dependencies": ["context7-mcp", "taskmaster-ai"],
+      "env": {
+        "ANTHROPIC_API_KEY": "${ANTHROPIC_API_KEY}",
+        "OPENAI_API_KEY": "${OPENAI_API_KEY}"
+      }
+    },
+    "context7-mcp": {
+      "command": "npx",
+      "args": [
+        "@smithery/context7-mcp"
+      ],
+      "category": "ai-semantic",
+      "tier": 1,
+      "description": "Enterprise Document Management with Versioning",
+      "auth": "smithery",
+      "env": {
+        "SMITHERY_API_KEY": "${SMITHERY_API_KEY}"
+      }
+    },
+    "qdrant": {
+      "command": "docker",
+      "args": [
+        "run",
+        "-d",
+        "--name",
+        "agentland-qdrant",
+        "-p",
+        "6333:6333",
+        "-v",
+        "qdrant_storage:/qdrant/storage",
+        "qdrant/qdrant"
+      ],
+      "category": "ai-semantic",
+      "tier": 1,
+      "description": "Vector Database with Ollama Embeddings",
+      "post_install": [
+        "docker exec agentland-qdrant /bin/bash -c 'pip install sentence-transformers ollama'",
+        "curl -X PUT 'http://localhost:6333/collections/agentland' -H 'Content-Type: application/json' -d '{\"vectors\": {\"size\": 384, \"distance\": \"Cosine\"}}'"
+      ],
+      "health_check": "curl -f http://localhost:6333/health || exit 1"
+    },
+    "taskmaster-ai": {
+      "command": "docker",
+      "args": [
+        "run",
+        "-i",
+        "--rm",
+        "-e",
+        "GOOGLE_API_KEY=${GOOGLE_API_KEY}",
+        "ghcr.io/google/taskmaster-ai-mcp"
+      ],
+      "category": "ai-semantic",
+      "tier": 1,
+      "description": "AI-Enhanced Task Management with Google AI",
+      "env": {
+        "GOOGLE_API_KEY": "${GOOGLE_API_KEY}"
+      }
+    },
+    "github": {
+      "command": "docker",
+      "args": [
+        "run",
+        "-i",
+        "--rm",
+        "-e",
+        "GITHUB_PERSONAL_ACCESS_TOKEN=${GITHUB_TOKEN}",
+        "ghcr.io/github/github-mcp-server"
+      ],
+      "category": "development-code",
+      "tier": 2,
+      "description": "Git Version Control with PR Management",
+      "fallback": {
+        "command": "npx",
+        "args": ["-y", "@auchenberg/claude-code-mcp"]
+      },
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_TOKEN}"
+      }
+    },
+    "filesystem": {
+      "command": "docker",
+      "args": [
+        "run",
+        "-i",
+        "--rm",
+        "-v",
+        "/home/jan/Desktop/claude-code:/workspace",
+        "-e",
+        "ALLOWED_DIRECTORIES=/workspace",
+        "ghcr.io/smithery-ai/filesystem-mcp"
+      ],
+      "category": "development-code",
+      "tier": 2,
+      "description": "Secure Containerized File Operations",
+      "security": {
+        "sandbox": true,
+        "read_only": false,
+        "allowed_paths": ["/home/jan/Desktop/claude-code"]
+      }
+    },
+    "desktop-commander": {
+      "command": "npx",
+      "args": [
+        "@smithery/desktop-commander"
+      ],
+      "category": "development-code",
+      "tier": 2,
+      "description": "System-Level Automation & Desktop Control",
+      "auth": "smithery",
+      "env": {
+        "SMITHERY_API_KEY": "${SMITHERY_API_KEY}"
+      },
+      "permissions": ["system", "desktop", "process"]
+    },
+    "markdownify-mcp": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "markdownify-mcp"
+      ],
+      "category": "content-media",
+      "tier": 3,
+      "description": "Document Conversion & Processing",
+      "config": {
+        "output_format": "gfm",
+        "preserve_formatting": true,
+        "include_metadata": true
+      }
+    },
+    "osp-marketing-tools": {
+      "command": "uv",
+      "args": [
+        "run",
+        "--python",
+        "3.11",
+        "osp-marketing-mcp"
+      ],
+      "category": "content-media",
+      "tier": 3,
+      "description": "Git-based Marketing Content Pipeline",
+      "install": "uv add osp-marketing-mcp",
+      "config": {
+        "content_quality": "enterprise",
+        "seo_optimization": true,
+        "multi_language": ["de", "en"]
+      }
+    },
+    "hyperbrowser-ai": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "hyperbrowser-ai-mcp"
+      ],
+      "category": "content-media",
+      "tier": 3,
+      "description": "Intelligent Web Scraping & Data Aggregation",
+      "config": {
+        "browser_pool_size": 3,
+        "proxy_rotation": true,
+        "rate_limiting": "adaptive"
+      }
+    },
+    "magic-mcp": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@21st-dev/magic-mcp"
+      ],
+      "category": "content-media",
+      "tier": 3,
+      "description": "AI-Powered UI Generation with 21st.dev",
+      "env": {
+        "TWENTY_FIRST_DEV_API_KEY": "${TWENTY_FIRST_DEV_API_KEY}"
+      },
+      "config": {
+        "component_library": "shadcn",
+        "framework": "nextjs",
+        "design_system": "agentland-consciousness"
+      }
+    },
+    "toolbox": {
+      "command": "npx",
+      "args": [
+        "@smithery/toolbox-mcp"
+      ],
+      "category": "utility-tools",
+      "tier": 4,
+      "description": "Smithery Utility Collection with Profile Management",
+      "auth": "smithery",
+      "env": {
+        "SMITHERY_API_KEY": "${SMITHERY_API_KEY}"
+      }
+    },
+    "fetch": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@tokenizin/mcp-npx-fetch"
+      ],
+      "category": "utility-tools",
+      "tier": 4,
+      "description": "Lightweight Web Content Retrieval",
+      "config": {
+        "cache_duration": 3600,
+        "retry_attempts": 3,
+        "timeout": 10000
+      }
+    }
+  },
+  "orchestration": {
+    "primary_controller": "claude-crew",
+    "failover_strategy": "tier_based",
+    "load_balancing": "adaptive",
+    "health_monitoring": true,
+    "auto_restart": true,
+    "max_concurrent_servers": 8
+  },
+  "security": {
+    "sandboxing": {
+      "enabled": true,
+      "docker_containers": ["filesystem", "github", "qdrant", "taskmaster-ai"],
+      "isolated_processes": ["desktop-commander", "hyperbrowser-ai"]
+    },
+    "authentication": {
+      "smithery_servers": ["context7-mcp", "desktop-commander", "toolbox"],
+      "api_key_servers": ["taskmaster-ai", "magic-mcp"],
+      "token_servers": ["github"]
+    },
+    "rate_limiting": {
+      "tier_1": 100,
+      "tier_2": 200,
+      "tier_3": 150,
+      "tier_4": 300
+    }
+  },
+  "monitoring": {
+    "health_checks": {
+      "interval": 30,
+      "timeout": 10,
+      "retries": 3
+    },
+    "performance_metrics": {
+      "response_time": true,
+      "memory_usage": true,
+      "cpu_utilization": true,
+      "success_rate": true
+    },
+    "alerting": {
+      "webhook_url": "http://localhost:3000/api/mcp-alerts",
+      "critical_threshold": 0.8,
+      "warning_threshold": 0.6
+    }
+  }
+}

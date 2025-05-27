@@ -1,0 +1,131 @@
+{
+  "mcpServers": {
+    "claude-crew": {
+      "command": "npx",
+      "args": [
+        "-y", 
+        "claude-crew@latest", 
+        "serve-mcp",
+        "./claude-crew-config.json"
+      ],
+      "env": {
+        "OLLAMA_HOST": "http://localhost:11434",
+        "EMBEDDING_MODEL": "nomic-embed-text",
+        "COMPLETION_MODEL": "llama3.2:3b"
+      }
+    },
+    "context7-mcp": {
+      "command": "npx",
+      "args": [
+        "-y", 
+        "@smithery/context7-mcp@latest"
+      ],
+      "env": {
+        "SMITHERY_API_KEY": "${SMITHERY_API_KEY}"
+      }
+    },
+    "qdrant": {
+      "command": "docker",
+      "args": [
+        "run", 
+        "-i", 
+        "--rm",
+        "-p", "6333:6333",
+        "-v", "./qdrant_storage:/qdrant/storage:z",
+        "qdrant/qdrant:latest"
+      ],
+      "env": {
+        "QDRANT_URL": "http://localhost:6333",
+        "OLLAMA_EMBEDDING_MODEL": "nomic-embed-text"
+      }
+    },
+    "github": {
+      "command": "npx",
+      "args": [
+        "-y", 
+        "@auchenberg/claude-code-mcp@latest"
+      ],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_TOKEN}"
+      }
+    },
+    "filesystem": {
+      "command": "docker",
+      "args": [
+        "run", 
+        "-i", 
+        "--rm",
+        "-v", "${PWD}:/workspace:ro",
+        "mcp/filesystem"
+      ],
+      "env": {
+        "ALLOWED_DIRECTORIES": "/workspace"
+      }
+    },
+    "desktop-commander": {
+      "command": "npx",
+      "args": [
+        "-y", 
+        "@smithery/desktop-commander@latest"
+      ],
+      "env": {
+        "SMITHERY_API_KEY": "${SMITHERY_API_KEY}"
+      }
+    },
+    "taskmaster-ai": {
+      "command": "npx",
+      "args": [
+        "-y", 
+        "taskmaster-ai@latest"
+      ],
+      "env": {
+        "GOOGLE_AI_API_KEY": "${GOOGLE_AI_API_KEY}"
+      }
+    },
+    "markdownify-mcp": {
+      "command": "npx",
+      "args": [
+        "-y", 
+        "markdownify-mcp@latest"
+      ]
+    },
+    "osp-marketing-tools": {
+      "command": "npx",
+      "args": [
+        "-y", 
+        "@osp/marketing-tools@latest"
+      ]
+    },
+    "hyperbrowser-mcp": {
+      "command": "npx",
+      "args": [
+        "-y", 
+        "hyperbrowser-mcp@latest"
+      ]
+    },
+    "magic-mcp": {
+      "command": "npx",
+      "args": [
+        "-y", 
+        "@21st/magic-mcp@latest"
+      ]
+    },
+    "toolbox": {
+      "command": "npx",
+      "args": [
+        "-y", 
+        "@smithery/toolbox@latest"
+      ],
+      "env": {
+        "SMITHERY_API_KEY": "${SMITHERY_API_KEY}"
+      }
+    },
+    "fetch": {
+      "command": "npx",
+      "args": [
+        "-y", 
+        "@tokenizin/mcp-npx-fetch@latest"
+      ]
+    }
+  }
+}

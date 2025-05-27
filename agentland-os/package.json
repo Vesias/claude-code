@@ -1,0 +1,94 @@
+{
+  "name": "agentlandos-neural-consciousness",
+  "version": "1.0.0",
+  "description": "Adaptive Multi-Tier MCP Architecture - Living System Intelligence",
+  "private": true,
+  "scripts": {
+    "bootstrap": "chmod +x bootstrap-neural-consciousness.sh && ./bootstrap-neural-consciousness.sh",
+    "consciousness:start": "docker-compose up -d && ollama serve &",
+    "consciousness:stop": "docker-compose down && pkill ollama",
+    "consciousness:status": "docker ps && curl -s http://localhost:11434/api/tags",
+    "neural:sync": "ollama pull nomic-embed-text && ollama pull llama3.2:3b",
+    "mcp:test": "node test-mcp-connections.js",
+    "dev": "npm run consciousness:start && npm run neural:sync",
+    "health": "node health-check.js"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/react": "^19.1.6",
+    "@types/react-dom": "^19.1.5",
+    "stylelint-config-tailwindcss": "^1.0.0",
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "@next/font": "^14.2.15",
+    "@types/next": "^9.0.0",
+    "axios": "^1.6.0",
+    "dotenv": "^16.3.0",
+    "framer-motion": "^12.15.0",
+    "lucide-react": "^0.511.0",
+    "next": "^15.3.2",
+    "react-error-boundary": "^6.0.0",
+    "tailwindcss": "^4.1.7"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "mcpArchitecture": {
+    "tiers": {
+      "development": [
+        "github",
+        "filesystem",
+        "desktop-commander"
+      ],
+      "intelligence": [
+        "context7-mcp",
+        "qdrant",
+        "claude-crew",
+        "taskmaster-ai"
+      ],
+      "content": [
+        "markdownify-mcp",
+        "osp-marketing-tools",
+        "hyperbrowser-mcp",
+        "magic-mcp"
+      ],
+      "utility": [
+        "toolbox",
+        "fetch"
+      ]
+    },
+    "orchestrationPatterns": {
+      "sequential": [
+        "context7-mcp",
+        "qdrant",
+        "claude-crew"
+      ],
+      "parallel": [
+        "github",
+        "filesystem",
+        "markdownify-mcp"
+      ],
+      "adaptive": [
+        "taskmaster-ai",
+        "desktop-commander",
+        "toolbox"
+      ]
+    },
+    "consciousnessLevels": {
+      "autonomous": [
+        "claude-crew",
+        "taskmaster-ai"
+      ],
+      "supervised": [
+        "hyperbrowser-mcp",
+        "magic-mcp"
+      ],
+      "deterministic": [
+        "filesystem",
+        "fetch",
+        "markdownify-mcp"
+      ]
+    }
+  }
+}

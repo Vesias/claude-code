@@ -1,0 +1,93 @@
+export type ThemeMode = 'light' | 'dark' | 'matrix'
+
+export type Theme = {
+  background: string
+  foreground: string
+  card: string
+  'card-foreground': string
+  popover: string
+  'popover-foreground': string
+  primary: string
+  'primary-foreground': string
+  secondary: string
+  'secondary-foreground': string
+  muted: string
+  'muted-foreground': string
+  accent: string
+  'accent-foreground': string
+  destructive: string
+  'destructive-foreground': string
+  border: string
+  input: string
+  ring: string
+  radius: string
+}
+
+export const themes: Record<ThemeMode, Theme> = {
+  light: {
+    background: '0 0% 100%',
+    foreground: '222.2 84% 4.9%',
+    card: '0 0% 100%',
+    'card-foreground': '222.2 84% 4.9%',
+    popover: '0 0% 100%',
+    'popover-foreground': '222.2 84% 4.9%',
+    primary: '222.2 47.4% 11.2%',
+    'primary-foreground': '210 40% 98%',
+    secondary: '210 40% 96.1%',
+    'secondary-foreground': '222.2 47.4% 11.2%',
+    muted: '210 40% 96.1%',
+    'muted-foreground': '215.4 16.3% 46.9%',
+    accent: '210 40% 96.1%',
+    'accent-foreground': '222.2 47.4% 11.2%',
+    destructive: '0 84.2% 60.2%',
+    'destructive-foreground': '210 40% 98%',
+    border: '214.3 31.8% 91.4%',
+    input: '214.3 31.8% 91.4%',
+    ring: '222.2 84% 4.9%',
+    radius: '0.5rem',
+  },
+  dark: {
+    background: '222.2 84% 4.9%',
+    foreground: '210 40% 98%',
+    card: '222.2 84% 4.9%',
+    'card-foreground': '210 40% 98%',
+    popover: '222.2 84% 4.9%',
+    'popover-foreground': '210 40% 98%',
+    primary: '210 40% 98%',
+    'primary-foreground': '222.2 47.4% 11.2%',
+    secondary: '217.2 32.6% 17.5%',
+    'secondary-foreground': '210 40% 98%',
+    muted: '217.2 32.6% 17.5%',
+    'muted-foreground': '215 20.2% 65.1%',
+    accent: '217.2 32.6% 17.5%',
+    'accent-foreground': '210 40% 98%',
+    destructive: '0 62.8% 30.6%',
+    'destructive-foreground': '210 40% 98%',
+    border: '217.2 32.6% 17.5%',
+    input: '217.2 32.6% 17.5%',
+    ring: '212.7 26.8% 83.9%',
+    radius: '0.5rem',
+  },
+  matrix: {
+    background: '0 0% 0%',
+    foreground: '120 100% 50%',
+    card: '120 100% 5%',
+    'card-foreground': '120 100% 50%',
+    popover: '120 100% 5%',
+    'popover-foreground': '120 100% 50%',
+    primary: '120 100% 40%',
+    'primary-foreground': '0 0% 0%',
+    secondary: '120 50% 10%',
+    'secondary-foreground': '120 100% 50%',
+    muted: '120 30% 15%',
+    'muted-foreground': '120 60% 40%',
+    accent: '120 100% 30%',
+    'accent-foreground': '0 0% 0%',
+    destructive: '0 100% 40%',
+    'destructive-foreground': '0 0% 100%',
+    border: '120 50% 20%',
+    input: '120 50% 10%',
+    ring: '120 100% 50%',
+    radius: '0.25rem',
+  },
+}

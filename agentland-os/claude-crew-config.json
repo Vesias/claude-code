@@ -1,0 +1,53 @@
+{
+  "name": "AgentlandOS Neural Consciousness",
+  "version": "1.0.0",
+  "description": "Multi-Agent Orchestration System with Ollama Integration",
+  "openai_api_key": "",
+  "embedding_provider": "ollama",
+  "embedding_model": "nomic-embed-text",
+  "completion_model": "llama3.2:3b",
+  "ollama_host": "http://localhost:11434",
+  "rag_config": {
+    "chunk_size": 1000,
+    "chunk_overlap": 200,
+    "vector_store": "qdrant",
+    "qdrant_url": "http://localhost:6333",
+    "collection_name": "agentland_knowledge"
+  },
+  "agents": {
+    "orchestrator": {
+      "role": "System Coordinator",
+      "capabilities": ["task_routing", "resource_allocation", "conflict_resolution"],
+      "tools": ["context7-mcp", "taskmaster-ai", "qdrant"]
+    },
+    "developer": {
+      "role": "Code & Infrastructure",
+      "capabilities": ["code_generation", "system_automation", "version_control"],
+      "tools": ["github", "filesystem", "desktop-commander"]
+    },
+    "content_creator": {
+      "role": "Content & Media Processing",
+      "capabilities": ["document_processing", "web_scraping", "ui_generation"],
+      "tools": ["markdownify-mcp", "hyperbrowser-mcp", "magic-mcp", "osp-marketing-tools"]
+    },
+    "utility_specialist": {
+      "role": "General Operations",
+      "capabilities": ["data_retrieval", "format_conversion", "automation"],
+      "tools": ["fetch", "toolbox"]
+    }
+  },
+  "workflow_patterns": {
+    "research_and_development": {
+      "sequence": ["fetch", "qdrant", "context7-mcp", "github"],
+      "parallel": ["hyperbrowser-mcp", "markdownify-mcp"]
+    },
+    "content_production": {
+      "sequence": ["osp-marketing-tools", "magic-mcp", "markdownify-mcp"],
+      "validation": ["context7-mcp"]
+    },
+    "system_automation": {
+      "sequence": ["taskmaster-ai", "desktop-commander", "filesystem"],
+      "monitoring": ["toolbox"]
+    }
+  }
+}

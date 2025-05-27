@@ -1,0 +1,610 @@
+# AgentlandOS - Living MCP Ecosystem
+# A self-orchestrating, multi-tenant AIaaS neural architecture
+
+version: '3.9'
+
+x-logging: &default-logging
+  driver: "json-file"
+  options:
+    max-size: "10m"
+    max-file: "3"
+    labels: "service,tenant,workspace"
+
+x-healthcheck: &default-healthcheck
+  interval: 30s
+  timeout: 10s
+  retries: 3
+  start_period: 40s
+
+networks:
+  agentland-neural:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+    driver_opts:
+      com.docker.network.bridge.name: agentland0
+
+volumes:
+  postgres-data:
+  qdrant-data:
+  localai-models:
+  mcp-workspace:
+  lago-data:
+
+services:
+  # ═══════════════════════════════════════════════════════════════════════
+  # CORE INFRASTRUCTURE LAYER - The Beating Heart
+  # ═══════════════════════════════════════════════════════════════════════
+  
+  postgres:
+    image: postgres:16-alpine
+    container_name: agentland-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: agentland
+      POSTGRES_USER: agentland
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-neural-nexus-2025}
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=de_DE.utf8"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./infrastructure/postgres/init.sql:/docker-entrypoint-initdb.d/01-init.sql
+      - ./infrastructure/postgres/rls-policies.sql:/docker-entrypoint-initdb.d/02-rls.sql
+    ports:
+      - "5432:5432"
+    networks:
+      agentland-neural:
+        ipv4_address: 172.20.0.10
+    healthcheck:
+      <<: *default-healthcheck
+      test: ["CMD-SHELL", "pg_isready -U agentland -d agentland"]
+    logging: *default-logging
+
+  # ═══════════════════════════════════════════════════════════════════════
+  # AI INFERENCE LAYER - The Cognitive Core
+  # ═══════════════════════════════════════════════════════════════════════
+  
+  localai:
+    image: localai/localai:v2.9.0-ffmpeg-core
+    container_name: agentland-localai
+    restart: unless-stopped
+    environment:
+      THREADS: ${LOCALAI_THREADS:-4}
+      CONTEXT_SIZE: ${LOCALAI_CONTEXT:-2048}
+      MODELS_PATH: /models
+      # German-optimized settings
+      DEFAULT_MODEL: all-mpnet-base-v2
+      EMBEDDINGS_MODEL: all-mpnet-base-v2
+      WHISPER_MODEL: ggml-whisper-base-de
+      # P2P capabilities
+      LOCALAI_P2P: ${ENABLE_P2P:-false}
+      LOCALAI_P2P_TOKEN: ${P2P_TOKEN:-}
+    volumes:
+      - localai-models:/models
+      - ./infrastructure/localai/models.yaml:/models/models.yaml
+    ports:
+      - "8080:8080"
+    networks:
+      agentland-neural:
+        ipv4_address: 172.20.0.20
+    deploy:
+      resources:
+        limits:
+          cpus: '4'
+          memory: 8G
+        reservations:
+          cpus: '2'
+          memory: 4G
+    healthcheck:
+      <<: *default-healthcheck
+      test: ["CMD", "curl", "-f", "http://localhost:8080/readyz"]
+    logging: *default-logging
+
+  # ═══════════════════════════════════════════════════════════════════════
+  # VECTOR DATABASE - Semantic Memory
+  # ═══════════════════════════════════════════════════════════════════════
+  
+  qdrant:
+    image: qdrant/qdrant:v1.7.4
+    container_name: agentland-qdrant
+    restart: unless-stopped
+    environment:
+      QDRANT__SERVICE__HTTP_PORT: 6333
+      QDRANT__SERVICE__GRPC_PORT: 6334
+      QDRANT__LOG_LEVEL: INFO
+      QDRANT__STORAGE__STORAGE_PATH: /qdrant/storage
+      QDRANT__STORAGE__ON_DISK_PAYLOAD: true
+      # Multi-tenant security
+      QDRANT__SERVICE__API_KEY: ${QDRANT_API_KEY:-quantum-memory-2025}
+      QDRANT__TLS__ENABLED: ${ENABLE_TLS:-false}
+    volumes:
+      - qdrant-data:/qdrant/storage
+      - ./infrastructure/qdrant/config.yaml:/qdrant/config/config.yaml
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    networks:
+      agentland-neural:
+        ipv4_address: 172.20.0.30
+    healthcheck:
+      <<: *default-healthcheck
+      test: ["CMD", "curl", "-f", "http://localhost:6333/health"]
+    logging: *default-logging
+
+  # ═══════════════════════════════════════════════════════════════════════
+  # USAGE TRACKING - Neural Economics
+  # ═══════════════════════════════════════════════════════════════════════
+  
+  lago:
+    image: getlago/lago-api:v0.50.0-beta
+    container_name: agentland-lago
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://agentland:${POSTGRES_PASSWORD:-neural-nexus-2025}@postgres:5432/lago
+      LAGO_API_URL: http://lago:3000
+      SECRET_KEY_BASE: ${LAGO_SECRET:-quantum-billing-nexus-2025}
+      RAILS_ENV: production
+      LAGO_FRONT_URL: http://localhost:3001
+      # Encryption
+      ENCRYPTION_PRIMARY_KEY: ${LAGO_ENCRYPTION_KEY:-}
+      ENCRYPTION_DETERMINISTIC_KEY: ${LAGO_DETERMINISTIC_KEY:-}
+      ENCRYPTION_KEY_DERIVATION_SALT: ${LAGO_KEY_SALT:-}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "3000:3000"
+    networks:
+      agentland-neural:
+        ipv4_address: 172.20.0.40
+    volumes:
+      - lago-data:/app/storage
+    healthcheck:
+      <<: *default-healthcheck
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+    logging: *default-logging
+
+  # ═══════════════════════════════════════════════════════════════════════
+  # API GATEWAY - Neural Router
+  # ═══════════════════════════════════════════════════════════════════════
+  
+  api-gateway:
+    build:
+      context: ./services/api-gateway
+      dockerfile: Dockerfile
+    container_name: agentland-gateway
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 4000
+      # Service Discovery
+      POSTGRES_URL: postgresql://agentland:${POSTGRES_PASSWORD:-neural-nexus-2025}@postgres:5432/agentland
+      LOCALAI_URL: http://localai:8080
+      QDRANT_URL: http://qdrant:6333
+      LAGO_API_URL: http://lago:3000
+      # Auth
+      JWT_SECRET: ${JWT_SECRET:-quantum-auth-nexus-2025}
+      CLAUDE_CLIENT_ID: ${CLAUDE_CLIENT_ID}
+      CLAUDE_CLIENT_SECRET: ${CLAUDE_CLIENT_SECRET}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+      # Multi-tenant
+      ENABLE_MULTI_TENANT: true
+      MAX_TENANTS_PER_INSTANCE: 100
+    depends_on:
+      - postgres
+      - localai
+      - qdrant
+      - lago
+    ports:
+      - "4000:4000"
+    networks:
+      agentland-neural:
+        ipv4_address: 172.20.0.50
+    volumes:
+      - ./services/api-gateway:/app
+      - /app/node_modules
+    healthcheck:
+      <<: *default-healthcheck
+      test: ["CMD", "curl", "-f", "http://localhost:4000/health"]
+    logging: *default-logging
+
+  # ═══════════════════════════════════════════════════════════════════════
+  # MCP TOOL ORCHESTRA - The Neural Symphony
+  # ═══════════════════════════════════════════════════════════════════════
+
+  # Development & Code Tools
+  mcp-github:
+    image: node:20-alpine
+    container_name: mcp-github
+    restart: unless-stopped
+    working_dir: /app
+    command: npx -y @modelcontextprotocol/server-github
+    environment:
+      GITHUB_TOKEN: ${GITHUB_TOKEN:-} # From OAuth
+      MCP_MODE: server
+      TENANT_ISOLATION: true
+    networks:
+      agentland-neural:
+        ipv4_address: 172.20.1.1
+    volumes:
+      - mcp-workspace:/workspace
+    healthcheck:
+      <<: *default-healthcheck
+      test: ["CMD", "node", "-e", "process.exit(0)"]
+    logging: *default-logging
+
+  mcp-filesystem:
+    build:
+      context: ./services/mcp-filesystem
+      dockerfile: Dockerfile
+    container_name: mcp-filesystem
+    restart: unless-stopped
+    environment:
+      SANDBOX_MODE: true
+      ALLOWED_PATHS: /workspace,/data
+      MCP_MODE: server
+    volumes:
+      - mcp-workspace:/workspace:rw
+      - ./data:/data:ro
+    networks:
+      agentland-neural:
+        ipv4_address: 172.20.1.2
+    cap_drop:
+      - ALL
+    cap_add:
+      - DAC_OVERRIDE
+    read_only: true
+    tmpfs:
+      - /tmp
+    healthcheck:
+      <<: *default-healthcheck
+      test: ["CMD", "test", "-d", "/workspace"]
+    logging: *default-logging
+
+  mcp-desktop-commander:
+    image: node:20-alpine
+    container_name: mcp-desktop-commander
+    restart: unless-stopped
+    working_dir: /app
+    command: npx -y @smithery/desktop-commander-mcp
+    environment:
+      DISPLAY: ${DISPLAY:-:0}
+      AUTOMATION_LEVEL: advanced
+      SECURITY_MODE: sandboxed
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix:ro
+      - mcp-workspace:/workspace
+    networks:
+      agentland-neural:
+        ipv4_address: 172.20.1.3
+    cap_add:
+      - SYS_ADMIN # For browser automation
+    devices:
+      - /dev/dri:/dev/dri # GPU access
+    logging: *default-logging
+
+  # AI & Semantic Tools
+  mcp-qdrant:
+    build:
+      context: ./services/mcp-qdrant
+      dockerfile: Dockerfile
+    container_name: mcp-qdrant
+    restart: unless-stopped
+    environment:
+      QDRANT_URL: http://qdrant:6333
+      QDRANT_API_KEY: ${QDRANT_API_KEY:-quantum-memory-2025}
+      EMBEDDING_PROVIDER: localai
+      EMBEDDING_URL: http://localai:8080/v1
+      EMBEDDING_MODEL: all-mpnet-base-v2
+      MCP_MODE: server
+    depends_on:
+      - qdrant
+      - localai
+    networks:
+      agentland-neural:
+        ipv4_address: 172.20.2.1
+    healthcheck:
+      <<: *default-healthcheck
+      test: ["CMD", "curl", "-f", "http://qdrant:6333/health"]
+    logging: *default-logging
+
+  mcp-claude-crew:
+    build:
+      context: ./services/mcp-claude-crew
+      dockerfile: Dockerfile
+    container_name: mcp-claude-crew
+    restart: unless-stopped
+    environment:
+      EMBEDDING_PROVIDER: localai
+      EMBEDDING_API_BASE: http://localai:8080/v1
+      EMBEDDING_MODEL: all-mpnet-base-v2
+      ORCHESTRATION_MODE: distributed
+      POSTGRES_URL: postgresql://agentland:${POSTGRES_PASSWORD:-neural-nexus-2025}@postgres:5432/agentland
+      MCP_MODE: server
+    depends_on:
+      - postgres
+      - localai
+    networks:
+      agentland-neural:
+        ipv4_address: 172.20.2.2
+    volumes:
+      - ./services/mcp-claude-crew:/app
+      - /app/node_modules
+    logging: *default-logging
+
+  mcp-taskmaster:
+    image: node:20-alpine
+    container_name: mcp-taskmaster
+    restart: unless-stopped
+    working_dir: /app
+    command: npx -y taskmaster-ai serve-mcp
+    environment:
+      GOOGLE_AI_API_KEY: ${GOOGLE_AI_API_KEY}
+      TASK_PERSISTENCE: postgresql
+      DATABASE_URL: postgresql://agentland:${POSTGRES_PASSWORD:-neural-nexus-2025}@postgres:5432/agentland
+      MCP_MODE: server
+    depends_on:
+      - postgres
+    networks:
+      agentland-neural:
+        ipv4_address: 172.20.2.3
+    logging: *default-logging
+
+  mcp-context7:
+    image: node:20-alpine
+    container_name: mcp-context7
+    restart: unless-stopped
+    working_dir: /app
+    command: npx -y @context7/mcp-server
+    environment:
+      STORAGE_BACKEND: qdrant
+      QDRANT_URL: http://qdrant:6333
+      QDRANT_API_KEY: ${QDRANT_API_KEY:-quantum-memory-2025}
+      MCP_MODE: server
+    depends_on:
+      - qdrant
+    networks:
+      agentland-neural:
+        ipv4_address: 172.20.2.4
+    volumes:
+      - ./docs:/docs:ro
+    logging: *default-logging
+
+  # Content & Media Tools
+  mcp-markdownify:
+    image: node:20-alpine
+    container_name: mcp-markdownify
+    restart: unless-stopped
+    working_dir: /app
+    command: npx -y @modelcontextprotocol/server-markdownify
+    environment:
+      SUPPORTED_FORMATS: pdf,docx,html,rtf
+      OCR_ENABLED: true
+      OCR_LANGUAGE: deu
+      MCP_MODE: server
+    networks:
+      agentland-neural:
+        ipv4_address: 172.20.3.1
+    volumes:
+      - mcp-workspace:/workspace
+    logging: *default-logging
+
+  mcp-osp-marketing:
+    build:
+      context: ./services/mcp-osp-marketing
+      dockerfile: Dockerfile
+    container_name: mcp-osp-marketing
+    restart: unless-stopped
+    environment:
+      TEMPLATE_LOCALE: de_DE
+      GDPR_COMPLIANCE: strict
+      ANALYTICS_ENABLED: true
+      MCP_MODE: server
+    networks:
+      agentland-neural:
+        ipv4_address: 172.20.3.2
+    volumes:
+      - ./templates/marketing:/templates:ro
+    logging: *default-logging
+
+  mcp-hyperbrowser:
+    image: node:20-alpine
+    container_name: mcp-hyperbrowser
+    restart: unless-stopped
+    working_dir: /app
+    command: npx -y hyperbrowser-mcp
+    environment:
+      HEADLESS: true
+      PROXY_ROTATION: true
+      RATE_LIMIT_MAX: 10
+      RATE_LIMIT_WINDOW: 60
+      MCP_MODE: server
+    networks:
+      agentland-neural:
+        ipv4_address: 172.20.3.3
+    cap_add:
+      - SYS_ADMIN
+    logging: *default-logging
+
+  mcp-magic:
+    image: node:20-alpine
+    container_name: mcp-magic
+    restart: unless-stopped
+    working_dir: /app
+    command: npx -y @21st/magic-mcp
+    environment:
+      UI_FRAMEWORK: react
+      STYLE_SYSTEM: tailwind
+      COMPONENT_LIBRARY: shadcn
+      MCP_MODE: server
+    networks:
+      agentland-neural:
+        ipv4_address: 172.20.3.4
+    volumes:
+      - ./components:/components
+    logging: *default-logging
+
+  # Utility Tools
+  mcp-toolbox:
+    image: node:20-alpine
+    container_name: mcp-toolbox
+    restart: unless-stopped
+    working_dir: /app
+    command: npx -y @smithery/toolbox-mcp
+    environment:
+      ENABLED_UTILITIES: json,csv,xml,yaml,transform
+      MCP_MODE: server
+    networks:
+      agentland-neural:
+        ipv4_address: 172.20.4.1
+    logging: *default-logging
+
+  mcp-fetch:
+    image: node:20-alpine
+    container_name: mcp-fetch
+    restart: unless-stopped
+    working_dir: /app
+    command: npx -y @modelcontextprotocol/server-fetch
+    environment:
+      CACHE_ENABLED: true
+      CACHE_TTL: 3600
+      TIMEOUT: 30000
+      MAX_RETRIES: 3
+      MCP_MODE: server
+    networks:
+      agentland-neural:
+        ipv4_address: 172.20.4.2
+    logging: *default-logging
+
+  # ═══════════════════════════════════════════════════════════════════════
+  # AG-UI EVENT ORCHESTRATOR - The Neural Pulse
+  # ═══════════════════════════════════════════════════════════════════════
+  
+  event-orchestrator:
+    build:
+      context: ./services/event-orchestrator
+      dockerfile: Dockerfile
+    container_name: agentland-events
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 5000
+      REDIS_URL: redis://redis:6379
+      POSTGRES_URL: postgresql://agentland:${POSTGRES_PASSWORD:-neural-nexus-2025}@postgres:5432/agentland
+      # Event streaming
+      SSE_HEARTBEAT_INTERVAL: 30000
+      MAX_CONNECTIONS_PER_TENANT: 50
+      EVENT_RETENTION_DAYS: 30
+    depends_on:
+      - postgres
+      - redis
+    ports:
+      - "5000:5000"
+    networks:
+      agentland-neural:
+        ipv4_address: 172.20.0.60
+    healthcheck:
+      <<: *default-healthcheck
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+    logging: *default-logging
+
+  # ═══════════════════════════════════════════════════════════════════════
+  # SUPPORTING INFRASTRUCTURE
+  # ═══════════════════════════════════════════════════════════════════════
+  
+  redis:
+    image: redis:7-alpine
+    container_name: agentland-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-quantum-cache-2025}
+    volumes:
+      - ./data/redis:/data
+    ports:
+      - "6379:6379"
+    networks:
+      agentland-neural:
+        ipv4_address: 172.20.0.70
+    healthcheck:
+      <<: *default-healthcheck
+      test: ["CMD", "redis-cli", "ping"]
+    logging: *default-logging
+
+  # ═══════════════════════════════════════════════════════════════════════
+  # MONITORING & OBSERVABILITY - The All-Seeing Eye
+  # ═══════════════════════════════════════════════════════════════════════
+  
+  prometheus:
+    image: prom/prometheus:v2.48.1
+    container_name: agentland-prometheus
+    restart: unless-stopped
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+      - '--web.enable-lifecycle'
+    volumes:
+      - ./infrastructure/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./data/prometheus:/prometheus
+    ports:
+      - "9090:9090"
+    networks:
+      agentland-neural:
+        ipv4_address: 172.20.0.80
+    logging: *default-logging
+
+  grafana:
+    image: grafana/grafana:10.2.3
+    container_name: agentland-grafana
+    restart: unless-stopped
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-quantum-viz-2025}
+      GF_INSTALL_PLUGINS: grafana-clock-panel,grafana-simple-json-datasource
+    volumes:
+      - ./infrastructure/grafana/dashboards:/var/lib/grafana/dashboards
+      - ./infrastructure/grafana/provisioning:/etc/grafana/provisioning
+      - ./data/grafana:/var/lib/grafana
+    ports:
+      - "3030:3000"
+    networks:
+      agentland-neural:
+        ipv4_address: 172.20.0.81
+    depends_on:
+      - prometheus
+    logging: *default-logging
+
+  # ═══════════════════════════════════════════════════════════════════════
+  # NGINX REVERSE PROXY - The Gateway Guardian
+  # ═══════════════════════════════════════════════════════════════════════
+  
+  nginx:
+    image: nginx:alpine
+    container_name: agentland-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./infrastructure/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./infrastructure/nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./infrastructure/nginx/ssl:/etc/nginx/ssl:ro
+      - ./frontend/out:/usr/share/nginx/html:ro
+    networks:
+      agentland-neural:
+        ipv4_address: 172.20.0.90
+    depends_on:
+      - api-gateway
+      - event-orchestrator
+    healthcheck:
+      <<: *default-healthcheck
+      test: ["CMD", "nginx", "-t"]
+    logging: *default-logging
+
+# ═══════════════════════════════════════════════════════════════════════
+# DEPLOYMENT PROFILES
+# ═══════════════════════════════════════════════════════════════════════
+
+# Development Override: docker-compose -f docker-compose.yml -f docker-compose.dev.yml up
+# Production: docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+# GPU-Enabled: docker-compose -f docker-compose.yml -f docker-compose.gpu.yml up -d

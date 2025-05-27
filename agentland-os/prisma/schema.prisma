@@ -1,0 +1,423 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Auth Models
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String?   @unique
+  emailVerified DateTime?
+  name          String?
+  password      String?
+  image         String?
+  role          UserRole  @default(USER)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  accounts         Account[]
+  sessions         Session[]
+  agents           Agent[]
+  agentExecutions  AgentExecution[]
+  workspaces       WorkspaceMember[]
+  ownedWorkspaces  Workspace[]
+  apiKeys          ApiKey[]
+  notifications    Notification[]
+  activities       Activity[]
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// Agent Models
+model Agent {
+  id          String      @id @default(cuid())
+  name        String
+  description String?
+  type        AgentType
+  status      AgentStatus @default(DRAFT)
+  config      Json
+  version     String      @default("1.0.0")
+  isPublic    Boolean     @default(false)
+  userId      String
+  workspaceId String?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  user            User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspace       Workspace?        @relation(fields: [workspaceId], references: [id])
+  executions      AgentExecution[]
+  capabilities    AgentCapability[]
+  collaborations  AgentCollaboration[]
+  dependencies    AgentDependency[] @relation("DependentAgent")
+  dependents      AgentDependency[] @relation("RequiredAgent")
+  marketplace     MarketplaceListing?
+  metrics         AgentMetrics?
+  tags            AgentTag[]
+
+  @@index([userId])
+  @@index([workspaceId])
+  @@index([status, isPublic])
+}
+
+model AgentCapability {
+  id          String   @id @default(cuid())
+  agentId     String
+  name        String
+  description String?
+  type        String
+  config      Json?
+  isEnabled   Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  agent Agent @relation(fields: [agentId], references: [id], onDelete: Cascade)
+
+  @@unique([agentId, name])
+}
+
+model AgentExecution {
+  id         String             @id @default(cuid())
+  agentId    String
+  userId     String
+  status     ExecutionStatus    @default(PENDING)
+  input      Json?
+  output     Json?
+  error      String?
+  startedAt  DateTime?
+  completedAt DateTime?
+  duration   Int?
+  cost       Float?
+  createdAt  DateTime           @default(now())
+
+  agent   Agent                @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  user    User                 @relation(fields: [userId], references: [id])
+  logs    ExecutionLog[]
+  metrics ExecutionMetrics[]
+
+  @@index([agentId, status])
+  @@index([userId])
+}
+
+model ExecutionLog {
+  id          String   @id @default(cuid())
+  executionId String
+  level       LogLevel
+  message     String
+  metadata    Json?
+  timestamp   DateTime @default(now())
+
+  execution AgentExecution @relation(fields: [executionId], references: [id], onDelete: Cascade)
+
+  @@index([executionId])
+}
+
+model ExecutionMetrics {
+  id          String   @id @default(cuid())
+  executionId String
+  name        String
+  value       Float
+  unit        String?
+  timestamp   DateTime @default(now())
+
+  execution AgentExecution @relation(fields: [executionId], references: [id], onDelete: Cascade)
+
+  @@index([executionId])
+}
+
+model AgentCollaboration {
+  id                String              @id @default(cuid())
+  name              String
+  description       String?
+  agentIds          String[]
+  workflowConfig    Json
+  status            CollaborationStatus @default(ACTIVE)
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+
+  agents Agent[]
+}
+
+model AgentDependency {
+  id               String   @id @default(cuid())
+  dependentAgentId String
+  requiredAgentId  String
+  version          String?
+  createdAt        DateTime @default(now())
+
+  dependentAgent Agent @relation("DependentAgent", fields: [dependentAgentId], references: [id], onDelete: Cascade)
+  requiredAgent  Agent @relation("RequiredAgent", fields: [requiredAgentId], references: [id], onDelete: Cascade)
+
+  @@unique([dependentAgentId, requiredAgentId])
+}
+
+// Workspace Models
+model Workspace {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  ownerId     String
+  settings    Json     @default("{}")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  owner    User              @relation(fields: [ownerId], references: [id])
+  members  WorkspaceMember[]
+  agents   Agent[]
+  projects Project[]
+
+  @@index([ownerId])
+}
+
+model WorkspaceMember {
+  id          String         @id @default(cuid())
+  workspaceId String
+  userId      String
+  role        WorkspaceRole  @default(MEMBER)
+  joinedAt    DateTime       @default(now())
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([workspaceId, userId])
+}
+
+model Project {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  workspaceId String
+  config      Json     @default("{}")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId])
+}
+
+// Marketplace Models
+model MarketplaceListing {
+  id          String          @id @default(cuid())
+  agentId     String          @unique
+  title       String
+  description String
+  price       Float?
+  currency    String?         @default("USD")
+  category    String
+  thumbnail   String?
+  images      String[]
+  features    String[]
+  status      ListingStatus   @default(PENDING)
+  downloads   Int             @default(0)
+  rating      Float?
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  agent   Agent           @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  reviews MarketplaceReview[]
+
+  @@index([status, category])
+  @@index([rating])
+}
+
+model MarketplaceReview {
+  id        String   @id @default(cuid())
+  listingId String
+  userId    String
+  rating    Int
+  comment   String?
+  createdAt DateTime @default(now())
+
+  listing MarketplaceListing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@unique([listingId, userId])
+  @@index([listingId])
+}
+
+// API & Security Models
+model ApiKey {
+  id          String   @id @default(cuid())
+  userId      String
+  name        String
+  key         String   @unique
+  permissions String[]
+  expiresAt   DateTime?
+  lastUsedAt  DateTime?
+  createdAt   DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([key])
+}
+
+// Analytics & Monitoring Models
+model AgentMetrics {
+  id              String   @id @default(cuid())
+  agentId         String   @unique
+  totalExecutions Int      @default(0)
+  successRate     Float    @default(0)
+  avgDuration     Float    @default(0)
+  totalCost       Float    @default(0)
+  lastExecutedAt  DateTime?
+  updatedAt       DateTime @updatedAt
+
+  agent Agent @relation(fields: [agentId], references: [id], onDelete: Cascade)
+}
+
+model Activity {
+  id        String       @id @default(cuid())
+  userId    String
+  type      ActivityType
+  entityId  String?
+  entityType String?
+  metadata  Json?
+  createdAt DateTime     @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([entityType, entityId])
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  type      NotificationType
+  title     String
+  message   String
+  metadata  Json?
+  isRead    Boolean          @default(false)
+  createdAt DateTime         @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isRead])
+}
+
+// Tags & Categorization
+model AgentTag {
+  id      String @id @default(cuid())
+  agentId String
+  tag     String
+
+  agent Agent @relation(fields: [agentId], references: [id], onDelete: Cascade)
+
+  @@unique([agentId, tag])
+  @@index([tag])
+}
+
+// Enums
+enum UserRole {
+  USER
+  ADMIN
+  DEVELOPER
+}
+
+enum AgentType {
+  ASSISTANT
+  AUTOMATION
+  INTEGRATION
+  WORKFLOW
+  CUSTOM
+}
+
+enum AgentStatus {
+  DRAFT
+  ACTIVE
+  PAUSED
+  ARCHIVED
+}
+
+enum ExecutionStatus {
+  PENDING
+  RUNNING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+enum LogLevel {
+  DEBUG
+  INFO
+  WARN
+  ERROR
+}
+
+enum CollaborationStatus {
+  ACTIVE
+  PAUSED
+  ARCHIVED
+}
+
+enum WorkspaceRole {
+  OWNER
+  ADMIN
+  MEMBER
+  VIEWER
+}
+
+enum ListingStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  SUSPENDED
+}
+
+enum ActivityType {
+  AGENT_CREATED
+  AGENT_UPDATED
+  AGENT_EXECUTED
+  WORKSPACE_JOINED
+  API_KEY_CREATED
+  COLLABORATION_STARTED
+}
+
+enum NotificationType {
+  INFO
+  SUCCESS
+  WARNING
+  ERROR
+  AGENT_UPDATE
+  EXECUTION_COMPLETE
+  COLLABORATION_INVITE
+}

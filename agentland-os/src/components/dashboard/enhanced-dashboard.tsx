@@ -9,6 +9,8 @@ import MCPToolsOrchestra from './mcp-tools-orchestra'
 import { BIDashboard } from './bi-dashboard'
 import { CustomerPipelineViz } from './customer-pipeline-viz'
 import { LivingDataFlow } from './living-data-flow'
+import { BusinessWorkspace } from './business-workspace'
+import { GermanBusinessAgents } from './german-business-agents'
 
 export function EnhancedDashboard() {
   const [activeView, setActiveView] = useState('dashboard')
@@ -21,6 +23,28 @@ export function EnhancedDashboard() {
     }, 2000)
     return () => clearInterval(interval)
   }, [])
+
+  // Default workspace for Business components
+  const defaultWorkspace = {
+    id: 'default-workspace',
+    name: 'Mein Arbeitsbereich',
+    businessProfile: {
+      companyName: 'AgentlandOS GmbH',
+      taxId: 'DE123456789',
+      industry: 'Software & AI Services',
+      size: 'small' as const
+    },
+    subscription: {
+      tier: 'professional' as const,
+      mrr: 2450,
+      nextBillingDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
+    },
+    complianceStatus: {
+      gdpr: true,
+      gobd: true,
+      lastAudit: new Date().toISOString()
+    }
+  }
 
   return (
     <div className="agentland-consciousness-container" data-consciousness-level={consciousnessLevel}>
@@ -65,6 +89,24 @@ export function EnhancedDashboard() {
           role="region"
         >
           <BIDashboard />
+        </section>
+        
+        {/* German Business Agents - B2B AI Features */}
+        <section 
+          className="german-business-agents" 
+          aria-label="German Business AI Agents"
+          role="region"
+        >
+          <GermanBusinessAgents />
+        </section>
+        
+        {/* Business Workspace - Integrated B2B Tools */}
+        <section 
+          className="business-workspace" 
+          aria-label="Business Workspace"
+          role="region"
+        >
+          <BusinessWorkspace workspace={defaultWorkspace} />
         </section>
       </main>
       

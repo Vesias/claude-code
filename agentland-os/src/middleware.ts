@@ -1,8 +1,13 @@
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 import { getToken } from "next-auth/jwt"
+import { cors, applyCorsHeaders } from "./lib/api/cors"
 
 export async function middleware(request: NextRequest) {
+  // Handle CORS preflight requests
+  const corsResponse = cors(request);
+  if (corsResponse) return corsResponse;
+  
   // Get token with proper secret configuration
   const token = await getToken({ 
     req: request,
@@ -14,10 +19,12 @@ export async function middleware(request: NextRequest) {
 
   if (isAuthPage) {
     if (isAuth) {
-      return NextResponse.redirect(new URL("/dashboard", request.url))
+      const response = NextResponse.redirect(new URL("/dashboard", request.url))
+      return applyCorsHeaders(response, request)
     }
     // Allow access to auth pages when not authenticated
-    return NextResponse.next()
+    const response = NextResponse.next()
+    return applyCorsHeaders(response, request)
   }
 
   if (!isAuth) {
@@ -26,13 +33,15 @@ export async function middleware(request: NextRequest) {
       from += request.nextUrl.search
     }
 
-    return NextResponse.redirect(
+    const response = NextResponse.redirect(
       new URL(`/login?from=${encodeURIComponent(from)}`, request.url)
     )
+    return applyCorsHeaders(response, request)
   }
 
   // Allow access to protected routes when authenticated
-  return NextResponse.next()
+  const response = NextResponse.next()
+  return applyCorsHeaders(response, request)
 }
 
 export const config = {
@@ -43,5 +52,6 @@ export const config = {
     "/settings/:path*",
     "/login",
     "/register",
+    "/api/:path*", // Also handle API routes for CORS
   ],
 }

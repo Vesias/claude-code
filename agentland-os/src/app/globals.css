@@ -1505,3 +1505,474 @@ select:focus-visible {
     display: none !important;
   }
 }
+
+/* ===== B2B BUSINESS INTEGRATION ===== */
+
+/* Landing Page Saarland Theme */
+.saarland-hero {
+  background: linear-gradient(135deg, 
+    rgba(0, 255, 136, 0.9),  /* Saarland Tech Green */
+    rgba(0, 136, 255, 0.9)   /* Digital Blue */
+  ),
+  url('/images/saarland-tech-bg.jpg') center/cover;
+  min-height: 100vh;
+  position: relative;
+  overflow: hidden;
+}
+
+.saarland-hero::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at 30% 70%, 
+    rgba(0, 255, 136, 0.3) 0%,
+    transparent 50%
+  );
+  animation: consciousness-wave 12s ease-in-out infinite;
+}
+
+/* German Business Features Grid */
+.kmu-features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: var(--space-xl);
+  padding: var(--space-4xl) var(--space-xl);
+  position: relative;
+}
+
+.kmu-feature-card {
+  background: var(--window-bg-elevated);
+  border: 2px solid transparent;
+  border-radius: var(--border-radius-lg);
+  padding: var(--space-2xl);
+  position: relative;
+  overflow: hidden;
+  transition: all var(--transition-normal);
+  backdrop-filter: blur(10px);
+}
+
+.kmu-feature-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, 
+    var(--primary) 0%,
+    var(--secondary) 50%,
+    var(--accent) 100%
+  );
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--transition-normal);
+}
+
+.kmu-feature-card:hover {
+  border-color: var(--primary);
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px rgba(0, 255, 136, 0.2);
+}
+
+.kmu-feature-card:hover::before {
+  transform: scaleX(1);
+}
+
+/* DATEV/Lexware Integration Showcase */
+.integration-showcase {
+  background: linear-gradient(135deg,
+    var(--bg-dark) 0%,
+    rgba(255, 189, 46, 0.1) 100%
+  );
+  border: 1px solid var(--warning);
+  border-radius: var(--border-radius-xl);
+  padding: var(--space-3xl);
+  position: relative;
+  overflow: hidden;
+}
+
+.integration-logos {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--space-3xl);
+  margin: var(--space-2xl) 0;
+}
+
+.integration-logo {
+  width: 120px;
+  height: 60px;
+  background: var(--bg-light);
+  border-radius: var(--border-radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: all var(--transition-normal);
+}
+
+.integration-logo::after {
+  content: '✓';
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  width: 24px;
+  height: 24px;
+  background: var(--success);
+  border-radius: var(--border-radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: bold;
+  opacity: 0;
+  transform: scale(0);
+  transition: all var(--transition-normal);
+}
+
+.integration-logo:hover {
+  transform: scale(1.1);
+  box-shadow: 0 10px 30px rgba(255, 189, 46, 0.3);
+}
+
+.integration-logo:hover::after {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Success Metrics Animation */
+@keyframes revenue-growth {
+  0% {
+    transform: scaleY(0.1);
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+}
+
+.kmu-metric {
+  text-align: center;
+  position: relative;
+}
+
+.kmu-metric-value {
+  font-size: var(--font-size-5xl);
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: revenue-growth 2s ease-out;
+  animation-fill-mode: forwards;
+  transform-origin: bottom;
+}
+
+.kmu-metric-label {
+  font-size: var(--font-size-lg);
+  color: var(--text-secondary);
+  margin-top: var(--space-sm);
+}
+
+/* Pricing Cards with German Focus */
+.pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--space-xl);
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--space-2xl);
+}
+
+.pricing-card {
+  background: var(--window-bg);
+  border: 2px solid var(--glass-border);
+  border-radius: var(--border-radius-xl);
+  padding: var(--space-2xl);
+  position: relative;
+  transition: all var(--transition-normal);
+  text-align: center;
+}
+
+.pricing-card.professional {
+  border-color: var(--primary);
+  transform: scale(1.05);
+  box-shadow: 0 20px 40px rgba(0, 255, 136, 0.2);
+}
+
+.pricing-card.professional::before {
+  content: 'BELIEBT';
+  position: absolute;
+  top: -12px;
+  right: 20px;
+  background: var(--primary);
+  color: var(--bg-dark);
+  padding: var(--space-xs) var(--space-lg);
+  border-radius: var(--border-radius-full);
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.pricing-tier {
+  font-size: var(--font-size-xl);
+  font-weight: 600;
+  margin-bottom: var(--space-md);
+  color: var(--text-primary);
+}
+
+.pricing-value {
+  font-size: var(--font-size-4xl);
+  font-weight: 700;
+  margin-bottom: var(--space-sm);
+}
+
+.pricing-value .currency {
+  font-size: var(--font-size-2xl);
+  vertical-align: super;
+}
+
+.pricing-value .period {
+  font-size: var(--font-size-base);
+  color: var(--text-secondary);
+  font-weight: normal;
+}
+
+/* Customer Success Stories */
+.success-stories {
+  background: var(--bg-medium);
+  padding: var(--space-4xl) var(--space-xl);
+  position: relative;
+  overflow: hidden;
+}
+
+.success-story-card {
+  background: var(--window-bg);
+  border-radius: var(--border-radius-lg);
+  padding: var(--space-xl);
+  margin-bottom: var(--space-xl);
+  position: relative;
+  transition: all var(--transition-normal);
+  border: 1px solid var(--glass-border);
+}
+
+.success-story-card::before {
+  content: '"';
+  position: absolute;
+  top: var(--space-md);
+  left: var(--space-md);
+  font-size: var(--font-size-5xl);
+  color: var(--primary);
+  opacity: 0.3;
+  font-family: Georgia, serif;
+}
+
+.success-story-card:hover {
+  transform: translateX(10px);
+  border-color: var(--primary);
+  box-shadow: -10px 0 30px rgba(0, 255, 136, 0.1);
+}
+
+.story-company {
+  font-weight: 600;
+  color: var(--primary);
+  margin-bottom: var(--space-sm);
+}
+
+.story-industry {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  margin-bottom: var(--space-md);
+}
+
+.story-metric {
+  display: inline-block;
+  background: rgba(0, 255, 136, 0.1);
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--border-radius-sm);
+  font-weight: 600;
+  color: var(--primary);
+  margin-top: var(--space-md);
+}
+
+/* CTA Section */
+.cta-section {
+  background: linear-gradient(135deg,
+    var(--bg-dark) 0%,
+    rgba(0, 255, 136, 0.1) 50%,
+    rgba(0, 136, 255, 0.1) 100%
+  );
+  padding: var(--space-4xl) var(--space-xl);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.cta-button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: var(--bg-dark);
+  padding: var(--space-md) var(--space-2xl);
+  border-radius: var(--border-radius-full);
+  font-weight: 600;
+  font-size: var(--font-size-lg);
+  transition: all var(--transition-normal);
+  position: relative;
+  overflow: hidden;
+  border: none;
+  cursor: pointer;
+}
+
+.cta-button::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: var(--border-radius-full);
+  transform: translate(-50%, -50%);
+  transition: all var(--transition-slow);
+}
+
+.cta-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 20px 40px rgba(0, 255, 136, 0.3);
+}
+
+.cta-button:hover::before {
+  width: 100%;
+  height: 100%;
+}
+
+.cta-button:active {
+  transform: translateY(0);
+}
+
+/* Landing Page Responsive */
+@media (max-width: 768px) {
+  .saarland-hero {
+    min-height: 80vh;
+  }
+  
+  .kmu-features-grid {
+    grid-template-columns: 1fr;
+    padding: var(--space-2xl) var(--space-lg);
+  }
+  
+  .integration-logos {
+    flex-wrap: wrap;
+    gap: var(--space-lg);
+  }
+  
+  .pricing-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .pricing-card.professional {
+    transform: scale(1);
+  }
+}
+.german-business-agents {
+  margin-top: var(--space-2xl);
+  padding: var(--space-xl);
+  background: var(--window-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-neural);
+  backdrop-filter: blur(10px);
+  position: relative;
+  overflow: hidden;
+}
+
+.german-business-agents::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(45deg, 
+    rgba(0, 255, 136, 0.05),
+    rgba(0, 136, 255, 0.05)
+  );
+  animation: breathing var(--breath-speed) ease-in-out infinite;
+  pointer-events: none;
+}
+
+.business-workspace {
+  margin-top: var(--space-xl);
+  padding: var(--space-xl);
+  background: var(--window-bg-elevated);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-neural);
+  position: relative;
+}
+
+.business-workspace::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, 
+    transparent,
+    var(--primary),
+    transparent
+  );
+  animation: data-flow var(--data-flow-speed) linear infinite;
+}
+
+/* Responsive grid for business components */
+@media (min-width: 1280px) {
+  .dashboard-main-content {
+    grid-template-areas:
+      "pipeline pipeline bi bi"
+      "agents agents workspace workspace";
+  }
+  
+  .pipeline-viz {
+    grid-area: pipeline;
+  }
+  
+  .bi-dashboard {
+    grid-area: bi;
+  }
+  
+  .german-business-agents {
+    grid-area: agents;
+  }
+  
+  .business-workspace {
+    grid-area: workspace;
+  }
+}
+
+/* Business component animations */
+@keyframes business-pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(0.98);
+  }
+}
+
+.business-card {
+  animation: business-pulse var(--pulse-speed) ease-in-out infinite;
+  animation-delay: calc(var(--index) * 0.1s);
+}

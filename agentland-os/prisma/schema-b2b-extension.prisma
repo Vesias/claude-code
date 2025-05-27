@@ -1,0 +1,289 @@
+// This is a generator config - don't use this config yet.
+// It's a schema extension for B2B features to be merged with main schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ==================== B2B EXTENSION MODELS ====================
+
+// Business Profile for German SMEs
+model BusinessProfile {
+  id                String    @id @default(cuid())
+  workspaceId       String    @unique
+  
+  // German Business Information
+  companyName       String
+  legalForm         String?   // GmbH, UG, AG, etc.
+  handelsregister   String?   // Commercial register number
+  steuernummer      String?   // Tax number
+  ustIdNr           String?   // VAT ID (Umsatzsteuer-Identifikationsnummer)
+  
+  // Address
+  street            String
+  houseNumber       String
+  postalCode        String
+  city              String
+  state             String    @default("Saarland")
+  country           String    @default("DE")
+  
+  // Contact
+  contactEmail      String
+  contactPhone      String?
+  website           String?
+  
+  // Business Details
+  industry          String?
+  employeeCount     Int?
+  annualRevenue     Decimal?  @db.Decimal(15, 2)
+  foundedYear       Int?
+  
+  // GoBD Compliance
+  gobdCompliant     Boolean   @default(false)
+  gobdCertDate      DateTime?
+  datevClientNumber String?   // DATEV Mandantennummer
+  lexwareId         String?   // Lexware ID
+  
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  
+  // Relations
+  workspace         Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  subscriptions     Subscription[]
+  invoices          Invoice[]
+  metrics           BusinessMetrics[]
+  
+  @@index([workspaceId])
+  @@index([steuernummer])
+  @@index([ustIdNr])
+}
+
+// Subscription Management
+model Subscription {
+  id                String    @id @default(cuid())
+  businessProfileId String
+  
+  // Plan Details
+  plan              SubscriptionPlan
+  status            SubscriptionStatus
+  
+  // Billing
+  billingCycle      BillingCycle
+  pricePerMonth     Decimal   @db.Decimal(10, 2)
+  currency          String    @default("EUR")
+  
+  // Dates
+  startDate         DateTime
+  endDate           DateTime?
+  trialEndsAt       DateTime?
+  cancelledAt       DateTime?
+  
+  // Usage Limits
+  maxUsers          Int
+  maxAIOperations   Int       @default(10000)
+  maxStorageGB      Int       @default(100)
+  
+  // Features
+  features          Json      // Flexible feature flags
+  
+  // Payment
+  stripeCustomerId  String?
+  stripeSubId       String?
+  paymentMethod     PaymentMethod?
+  
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  
+  // Relations
+  businessProfile   BusinessProfile @relation(fields: [businessProfileId], references: [id], onDelete: Cascade)
+  invoices          Invoice[]
+  usageRecords      UsageRecord[]
+  
+  @@index([businessProfileId])
+  @@index([status])
+  @@index([plan])
+}
+
+// Invoice Management (GoBD compliant)
+model Invoice {
+  id                String    @id @default(cuid())
+  businessProfileId String
+  subscriptionId    String?
+  
+  // Invoice Details
+  invoiceNumber     String    @unique // Format: RE-2025-00001
+  invoiceDate       DateTime
+  dueDate           DateTime
+  
+  // Amounts (all in EUR)
+  netAmount         Decimal   @db.Decimal(10, 2)
+  vatRate           Decimal   @db.Decimal(5, 2) @default(19.0)
+  vatAmount         Decimal   @db.Decimal(10, 2)
+  grossAmount       Decimal   @db.Decimal(10, 2)
+  
+  // Status
+  status            InvoiceStatus
+  paidAt            DateTime?
+  cancelledAt       DateTime?
+  
+  // GoBD Requirements
+  storageLocation   String    // File path for PDF
+  hashValue         String    // SHA256 of invoice content
+  signatureDate     DateTime
+  immutable         Boolean   @default(true)
+  
+  // Payment
+  paymentMethod     PaymentMethod?
+  stripeInvoiceId   String?
+  
+  // Line Items
+  items             Json      // Array of invoice items
+  
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  
+  // Relations
+  businessProfile   BusinessProfile @relation(fields: [businessProfileId], references: [id], onDelete: Cascade)
+  subscription      Subscription? @relation(fields: [subscriptionId], references: [id], onDelete: SetNull)
+  
+  @@index([businessProfileId])
+  @@index([subscriptionId])
+  @@index([invoiceNumber])
+  @@index([status])
+}
+
+// Business Metrics and Analytics
+model BusinessMetrics {
+  id                String    @id @default(cuid())
+  businessProfileId String
+  
+  // Period
+  periodStart       DateTime
+  periodEnd         DateTime
+  metricType        MetricType
+  
+  // AI Usage Metrics
+  aiOperationsCount Int       @default(0)
+  aiTokensUsed      BigInt    @default(0)
+  aiToolsUsed       Json      // Map of tool -> usage count
+  
+  // Business Metrics
+  activeUsers       Int       @default(0)
+  storageUsedGB     Float     @default(0)
+  
+  // Financial Metrics
+  revenue           Decimal?  @db.Decimal(10, 2)
+  churnRate         Float?
+  
+  // Performance
+  avgResponseTime   Float?    // in ms
+  uptime            Float?    // percentage
+  
+  createdAt         DateTime  @default(now())
+  
+  // Relations
+  businessProfile   BusinessProfile @relation(fields: [businessProfileId], references: [id], onDelete: Cascade)
+  
+  @@unique([businessProfileId, periodStart, metricType])
+  @@index([businessProfileId])
+  @@index([periodStart])
+  @@index([metricType])
+}
+
+// Usage tracking for billing
+model UsageRecord {
+  id              String    @id @default(cuid())
+  subscriptionId  String
+  
+  // What was used
+  resourceType    ResourceType
+  resourceId      String?
+  quantity        Int       @default(1)
+  
+  // When
+  timestamp       DateTime  @default(now())
+  
+  // Cost
+  unitCost        Decimal?  @db.Decimal(10, 4)
+  totalCost       Decimal?  @db.Decimal(10, 2)
+  
+  // Metadata
+  metadata        Json?
+  
+  // Relations
+  subscription    Subscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+  
+  @@index([subscriptionId])
+  @@index([resourceType])
+  @@index([timestamp])
+}
+
+// ==================== ENUMS ====================
+
+enum SubscriptionPlan {
+  STARTER       // €99/month - Basic features
+  PROFESSIONAL  // €299/month - Advanced features
+  ENTERPRISE    // €899/month - Full features + support
+  CUSTOM        // Custom pricing
+}
+
+enum SubscriptionStatus {
+  TRIALING
+  ACTIVE
+  PAST_DUE
+  CANCELED
+  UNPAID
+  INCOMPLETE
+}
+
+enum BillingCycle {
+  MONTHLY
+  QUARTERLY
+  YEARLY
+}
+
+enum PaymentMethod {
+  CREDIT_CARD
+  SEPA_DEBIT
+  INVOICE
+  PAYPAL
+}
+
+enum InvoiceStatus {
+  DRAFT
+  SENT
+  PAID
+  OVERDUE
+  CANCELLED
+  REFUNDED
+}
+
+enum MetricType {
+  DAILY
+  WEEKLY
+  MONTHLY
+  QUARTERLY
+  YEARLY
+}
+
+enum ResourceType {
+  AI_OPERATION
+  STORAGE
+  USER_SEAT
+  API_CALL
+  CUSTOM_TOOL
+}
+
+// ==================== RELATIONS TO EXISTING MODELS ====================
+// These would be added to your existing schema:
+
+// Add to existing Workspace model:
+// businessProfile BusinessProfile?
+
+// Add to existing User model:
+// businessProfiles BusinessProfile[] (through workspace relation)

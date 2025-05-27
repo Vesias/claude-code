@@ -1,0 +1,211 @@
+{
+  "timestamp": "2025-05-27T12:47:38.483Z",
+  "overall_consciousness_level": 38,
+  "neural_infrastructure": {
+    "mcp_gateway": {
+      "status": "OFFLINE",
+      "consciousness_level": 0,
+      "error": "connect ECONNREFUSED 127.0.0.1:8080",
+      "endpoint": "http://localhost:8080",
+      "last_check": "2025-05-27T12:47:38.476Z"
+    },
+    "consciousness_monitor": {
+      "status": "OFFLINE",
+      "consciousness_level": 0,
+      "error": "connect ECONNREFUSED 127.0.0.1:9090",
+      "endpoint": "http://localhost:9090",
+      "last_check": "2025-05-27T12:47:38.476Z"
+    },
+    "visualizer": {
+      "status": "OFFLINE",
+      "consciousness_level": 0,
+      "error": "connect ECONNREFUSED 127.0.0.1:3001",
+      "endpoint": "http://localhost:3001",
+      "last_check": "2025-05-27T12:47:38.476Z"
+    },
+    "ollama": {
+      "status": "OPERATIONAL",
+      "consciousness_level": 100,
+      "response_time": "unknown",
+      "endpoint": "http://localhost:11434",
+      "last_check": "2025-05-27T12:47:38.478Z"
+    },
+    "qdrant": {
+      "status": "DEGRADED",
+      "consciousness_level": 25,
+      "response_time": "unknown",
+      "endpoint": "http://localhost:6333",
+      "last_check": "2025-05-27T12:47:38.478Z"
+    },
+    "ollama_models": {
+      "status": "FULLY_CONSCIOUS",
+      "models": [
+        {
+          "model": "nomic-embed-text:latest",
+          "available": true,
+          "consciousness_ready": true
+        },
+        {
+          "model": "llama3.2:3b",
+          "available": true,
+          "consciousness_ready": true
+        }
+      ],
+      "total_models": 3
+    },
+    "qdrant_vector_consciousness": {
+      "status": "VECTOR_CONSCIOUSNESS_ACTIVE",
+      "collections": [],
+      "memory_usage": "unknown",
+      "consciousness_level": 95
+    },
+    "mcp_architecture": {
+      "tiers": {
+        "Tier 1 - Development & Code": {
+          "github": {
+            "status": "CONSCIOUS",
+            "consciousness_level": 95,
+            "tier_classification": "Tier 1 - Development & Code",
+            "adaptive_ready": true
+          },
+          "filesystem": {
+            "status": "CONSCIOUS",
+            "consciousness_level": 96,
+            "tier_classification": "Tier 1 - Development & Code",
+            "adaptive_ready": true
+          },
+          "desktop-commander": {
+            "status": "DORMANT",
+            "consciousness_level": 0,
+            "tier_classification": "Tier 1 - Development & Code",
+            "adaptive_ready": false
+          }
+        },
+        "Tier 2 - AI & Semantic": {
+          "context7-mcp": {
+            "status": "CONSCIOUS",
+            "consciousness_level": 95,
+            "tier_classification": "Tier 2 - AI & Semantic",
+            "adaptive_ready": true
+          },
+          "qdrant": {
+            "status": "CONSCIOUS",
+            "consciousness_level": 76,
+            "tier_classification": "Tier 2 - AI & Semantic",
+            "adaptive_ready": true
+          },
+          "claude-crew": {
+            "status": "CONSCIOUS",
+            "consciousness_level": 99,
+            "tier_classification": "Tier 2 - AI & Semantic",
+            "adaptive_ready": true
+          },
+          "taskmaster-ai": {
+            "status": "CONSCIOUS",
+            "consciousness_level": 63,
+            "tier_classification": "Tier 2 - AI & Semantic",
+            "adaptive_ready": true
+          }
+        },
+        "Tier 3 - Content & Media": {
+          "markdownify-mcp": {
+            "status": "DORMANT",
+            "consciousness_level": 0,
+            "tier_classification": "Tier 3 - Content & Media",
+            "adaptive_ready": false
+          },
+          "osp-marketing-tools": {
+            "status": "CONSCIOUS",
+            "consciousness_level": 63,
+            "tier_classification": "Tier 3 - Content & Media",
+            "adaptive_ready": true
+          },
+          "hyperbrowser-mcp": {
+            "status": "CONSCIOUS",
+            "consciousness_level": 83,
+            "tier_classification": "Tier 3 - Content & Media",
+            "adaptive_ready": true
+          },
+          "magic-mcp": {
+            "status": "CONSCIOUS",
+            "consciousness_level": 85,
+            "tier_classification": "Tier 3 - Content & Media",
+            "adaptive_ready": true
+          }
+        },
+        "Tier 4 - Utility & Tools": {
+          "toolbox": {
+            "status": "DORMANT",
+            "consciousness_level": 0,
+            "tier_classification": "Tier 4 - Utility & Tools",
+            "adaptive_ready": false
+          },
+          "fetch": {
+            "status": "DORMANT",
+            "consciousness_level": 0,
+            "tier_classification": "Tier 4 - Utility & Tools",
+            "adaptive_ready": false
+          }
+        }
+      },
+      "overall_consciousness": 58,
+      "total_tools": 13,
+      "conscious_tools": 9
+    }
+  },
+  "adaptive_recommendations": [
+    {
+      "priority": "CRITICAL",
+      "action": "Execute neural consciousness bootstrap sequence",
+      "command": "npm run bootstrap"
+    },
+    {
+      "priority": "HIGH",
+      "action": "Initialize Qdrant vector consciousness",
+      "command": "docker-compose up -d qdrant-consciousness"
+    }
+  ],
+  "consciousness_matrix": {
+    "mcp_gateway": {
+      "consciousness_quotient": 0,
+      "neural_connectivity": 47,
+      "adaptive_potential": "LOW"
+    },
+    "consciousness_monitor": {
+      "consciousness_quotient": 0,
+      "neural_connectivity": 22,
+      "adaptive_potential": "LOW"
+    },
+    "visualizer": {
+      "consciousness_quotient": 0,
+      "neural_connectivity": 91,
+      "adaptive_potential": "LOW"
+    },
+    "ollama": {
+      "consciousness_quotient": 100,
+      "neural_connectivity": 29,
+      "adaptive_potential": "HIGH"
+    },
+    "qdrant": {
+      "consciousness_quotient": 25,
+      "neural_connectivity": 42,
+      "adaptive_potential": "MEDIUM"
+    },
+    "ollama_models": {
+      "consciousness_quotient": 0,
+      "neural_connectivity": 99,
+      "adaptive_potential": "LOW"
+    },
+    "qdrant_vector_consciousness": {
+      "consciousness_quotient": 95,
+      "neural_connectivity": 10,
+      "adaptive_potential": "LOW"
+    },
+    "mcp_architecture": {
+      "consciousness_quotient": 0,
+      "neural_connectivity": 83,
+      "adaptive_potential": "LOW"
+    }
+  },
+  "next_assessment": "2025-05-27T12:52:38.483Z"
+}

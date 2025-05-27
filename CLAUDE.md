@@ -248,3 +248,8 @@ Ziel: Technische Konzepte als hochdynamische, autonome Agentensysteme präsentie
    - Any exceptions to these rules must be documented and approved in writing by the project owner.
 
 Remember: This is a German B2B SaaS product. All user-facing content should support German localization, currency should be in EUR, and business logic should comply with GDPR requirements.
+
+# CLAUDE Project Documentation
+
+@AgentlandOS-Extended-Dashboard-Design
+See [AgentlandOS Extended Dashboard – Living AIaaS Control Center Design Guide](AgentlandOS-Extended-Dashboard-Design.md) for UI/UX, architecture, and implementation patterns for the AgentlandOS Extended Dashboard. Use this as a reference for future dashboard development.

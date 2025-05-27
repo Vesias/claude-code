@@ -1,15 +1,16 @@
-import { NextResponse } from "next/server"
+import { NextResponse, NextRequest } from "next/server"
 import { hash } from "bcryptjs"
 import { z } from "zod"
 import { prisma } from "@/lib/prisma"
+import { withErrorHandler, ApiError } from "@/lib/api/error-handler"
+import { validateRequest, schemas, apiResponse, apiError } from "@/lib/api/validation"
+import { withRateLimit } from "@/lib/api/rate-limit"
 
-const registerSchema = z.object({
-  name: z.string().min(2),
-  email: z.string().email(),
-  password: z.string().min(6),
-})
+// Use centralized schema
+const registerSchema = schemas.register
 
-export async function POST(req: Request) {
+export const POST = withRateLimit(
+  withErrorHandler(async (req: NextRequest) => {
   try {
     const body = await req.json()
     const { name, email, password } = registerSchema.parse(body)
@@ -43,16 +44,8 @@ export async function POST(req: Request) {
       { status: 201 }
     )
   } catch (error) {
-    if (error instanceof z.ZodError) {
-      return NextResponse.json(
-        { message: "Ungültige Eingabedaten", errors: error.errors },
-        { status: 400 }
-      )
-    }
-
-    return NextResponse.json(
-      { message: "Interner Serverfehler" },
-      { status: 500 }
-    )
+    throw error; // Let error handler middleware handle it
   }
-}
+  }),
+  'auth' // Use strict auth rate limit
+)

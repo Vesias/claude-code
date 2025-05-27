@@ -19,7 +19,9 @@
       }
     ],
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@shared/types": ["./src/shared/types"],
+      "@shared/types/*": ["./src/shared/types/*"]
     },
     "noUnusedLocals": false,
     "noUnusedParameters": false,

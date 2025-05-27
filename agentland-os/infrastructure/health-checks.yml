@@ -1,0 +1,49 @@
+# Health check configurations for AgentlandOS services
+
+# Redis health check
+redis-health: &redis-health
+  test: ["CMD", "redis-cli", "ping"]
+  interval: 10s
+  timeout: 5s
+  retries: 3
+  start_period: 10s
+
+# Qdrant health check  
+qdrant-health: &qdrant-health
+  test: ["CMD", "curl", "-f", "http://localhost:6333/health"]
+  interval: 30s
+  timeout: 10s
+  retries: 3
+  start_period: 40s
+
+# API Gateway health check
+gateway-health: &gateway-health
+  test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+  interval: 30s
+  timeout: 10s
+  retries: 3
+  start_period: 60s
+
+# Event Orchestrator health check
+events-health: &events-health
+  test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+  interval: 30s
+  timeout: 10s
+  retries: 3
+  start_period: 30s
+
+# MCP Tool health check template
+mcp-tool-health: &mcp-tool-health
+  test: ["CMD", "curl", "-f", "http://localhost:8090/health"]
+  interval: 30s
+  timeout: 10s
+  retries: 3
+  start_period: 45s
+
+# Lago billing health check
+lago-health: &lago-health
+  test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+  interval: 30s
+  timeout: 10s
+  retries: 3
+  start_period: 60s

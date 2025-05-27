@@ -113,7 +113,7 @@ services:
       QDRANT__SERVICE__GRPC_PORT: 6334
       QDRANT__LOG_LEVEL: INFO
       QDRANT__STORAGE__STORAGE_PATH: /qdrant/storage
-      QDRANT__STORAGE__ON_DISK_PAYLOAD: true
+      QDRANT__STORAGE__ON_DISK_PAYLOAD: "true"
       # Multi-tenant security
       QDRANT__SERVICE__API_KEY: ${QDRANT_API_KEY:-quantum-memory-2025}
       QDRANT__TLS__ENABLED: ${ENABLE_TLS:-false}
@@ -189,7 +189,7 @@ services:
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
       # Multi-tenant
-      ENABLE_MULTI_TENANT: true
+      ENABLE_MULTI_TENANT: "true"
       MAX_TENANTS_PER_INSTANCE: 100
     depends_on:
       - postgres
@@ -223,7 +223,7 @@ services:
     environment:
       GITHUB_TOKEN: ${GITHUB_TOKEN:-} # From OAuth
       MCP_MODE: server
-      TENANT_ISOLATION: true
+      TENANT_ISOLATION: "true"
     networks:
       agentland-neural:
         ipv4_address: 172.20.1.1
@@ -241,7 +241,7 @@ services:
     container_name: mcp-filesystem
     restart: unless-stopped
     environment:
-      SANDBOX_MODE: true
+      SANDBOX_MODE: "true"
       ALLOWED_PATHS: /workspace,/data
       MCP_MODE: server
     volumes:
@@ -380,7 +380,7 @@ services:
     command: npx -y @modelcontextprotocol/server-markdownify
     environment:
       SUPPORTED_FORMATS: pdf,docx,html,rtf
-      OCR_ENABLED: true
+      OCR_ENABLED: "true"
       OCR_LANGUAGE: deu
       MCP_MODE: server
     networks:
@@ -399,7 +399,7 @@ services:
     environment:
       TEMPLATE_LOCALE: de_DE
       GDPR_COMPLIANCE: strict
-      ANALYTICS_ENABLED: true
+      ANALYTICS_ENABLED: "true"
       MCP_MODE: server
     networks:
       agentland-neural:
@@ -415,8 +415,8 @@ services:
     working_dir: /app
     command: npx -y hyperbrowser-mcp
     environment:
-      HEADLESS: true
-      PROXY_ROTATION: true
+      HEADLESS: "true"
+      PROXY_ROTATION: "true"
       RATE_LIMIT_MAX: 10
       RATE_LIMIT_WINDOW: 60
       MCP_MODE: server
@@ -467,7 +467,7 @@ services:
     working_dir: /app
     command: npx -y @modelcontextprotocol/server-fetch
     environment:
-      CACHE_ENABLED: true
+      CACHE_ENABLED: "true"
       CACHE_TTL: 3600
       TIMEOUT: 30000
       MAX_RETRIES: 3

@@ -78,3 +78,15 @@
   "code": "Embedding is disabled, skipping indexing codebase",
   "level": "info"
 }
+{
+  "code": "Uncommitted changes detected, skipping auto-pull",
+  "level": "info"
+}
+{
+  "code": "Uncommitted changes detected, skipping auto-pull",
+  "level": "info"
+}
+{
+  "code": "Uncommitted changes detected, skipping auto-pull",
+  "level": "info"
+}

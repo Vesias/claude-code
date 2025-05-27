@@ -3,6 +3,7 @@ import './globals.css'
 import { ThemeProvider } from '@/components/providers/theme-provider'
 import { SessionProvider } from '@/components/providers/session-provider'
 import { AuthProvider } from '@/components/providers/auth-provider'
+import { ErrorBoundary } from '@/components/providers/error-boundary'
 import { Toaster } from '@/components/ui/toaster'
 import { MatrixBackground } from '@/components/effects/matrix-background'
 
@@ -25,20 +26,22 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <SessionProvider>
-            <AuthProvider>
-              <MatrixBackground />
-              {children}
-              <Toaster />
-            </AuthProvider>
-          </SessionProvider>
-        </ThemeProvider>
+        <ErrorBoundary>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <SessionProvider>
+              <AuthProvider>
+                <MatrixBackground />
+                {children}
+                <Toaster />
+              </AuthProvider>
+            </SessionProvider>
+          </ThemeProvider>
+        </ErrorBoundary>
       </body>
     </html>
   )

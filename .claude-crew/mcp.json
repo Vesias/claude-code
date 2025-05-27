@@ -1,0 +1,11 @@
+{
+  "claude-crew-agentland-os": {
+    "command": "/home/jan/.nvm/versions/node/v22.15.1/bin/npx",
+    "args": [
+      "-y",
+      "claude-crew@latest",
+      "serve-mcp",
+      "/home/jan/Desktop/claude-code/.claude-crew/config.json"
+    ]
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "$schema": "https://raw.githubusercontent.com/d-kimuson/claude-crew/refs/heads/main/config-schema.json",
+  "name": "agentland-os",
+  "directory": "/home/jan/Desktop/claude-code",
+  "language": "deutsch",
+  "commands": {
+    "install": "pnpm i",
+    "build": "pnpm build",
+    "test": "pnpm test",
+    "testFile": "pnpm vitest run <file>",
+    "checks": [],
+    "checkFiles": []
+  },
+  "git": {
+    "defaultBranch": "main",
+    "autoPull": true
+  },
+  "integrations": [
+    {
+      "name": "typescript",
+      "config": {
+        "tsConfigFilePath": "/home/jan/Desktop/claude-code/agentland-os/tsconfig.json"
+      }
+    }
+  ]
+}
